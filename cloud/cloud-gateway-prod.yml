@@ -44,8 +44,8 @@ spring:
             - StripPrefix=1
             - name: Hystrix
               args:
-                name: default
-                fallbackUri: forward:/defaultfallback #熔断后访问路径
+                name: fallbackcmd
+                fallbackUri: forward:/fallback #熔断后访问路径
 #            - name: Retry
 #                args:
 #                  retries: 3
