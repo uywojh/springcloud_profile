@@ -1,6 +1,22 @@
 server:
   port: 8961
 
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: path_route
+          uri: http://172.16.246.128:9191
+          order: 0
+          predicates:
+            - Path=/foo/**
+          filters:
+            - StripPrefix=1
+
+#  上面给出了一个根据请求路径来匹配目标uri的例子，如果请求的路径为/foo/bar，则目标uri为 http://localhost:8000/bar。
+#  如果上面例子中没有加一个StripPrefix=1过滤器，则目标uri 为http://localhost:8000/foo/bar，
+#  StripPrefix过滤器是去掉一个路径。
+
 eureka:
   client:
     serviceUrl:
