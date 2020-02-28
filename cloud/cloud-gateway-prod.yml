@@ -66,10 +66,9 @@ spring:
 # hystrix 信号量隔离，5秒后自动超时,但是有些接口本身就是需要很长时间的 所以这里就不使用了,需要自定义重写熔断功能
 hystrix:
   command:
-    default:
+    fallbackcmd:
       execution:
         isolation:
-          strategy: SEMAPHORE
           thread:
             timeoutInMilliseconds: 2000 #熔断超时时间
 
