@@ -2,20 +2,77 @@ server:
   port: 8961
 
 spring:
+  redis:
+    host: 172.16.246.128
+    port: 6379
+    password: 123456
+    database: 6
   cloud:
     gateway:
       routes:
         - id: path_route
-          uri: http://172.16.246.128:9191
+          uri: lb://boot-hello-service
+#          predicates:
+#            # 匹配在什么时间之后的
+#            - After=2017-01-20T17:42:47.789-07:00[America/Denver]
+#            # 匹配在什么时间之前的
+#            - Before=2017-01-20T17:42:47.789-07:00[America/Denver]
+#            # 匹配在某段时间的
+#            - Between=2017-01-20T17:42:47.789-07:00[America/Denver], 2017-01-21T17:42:47.789-07:00[America/Denver]
+#            # 匹配cookie名称为`chocolate`的值要符合`ch.p`正则.
+#            - Cookie=chocolate, ch.p
+#            # 匹配header为`X-Request-Id`的值要符合`\d+`正则.
+#            - Header=X-Request-Id, \d+
+#            # 匹配任意符合`**.somehost.org`与`**.anotherhost.org`正则的网址
+#            - Host=**.somehost.org,**.anotherhost.org
+#            # Host还支持模版变量，会保存在`ServerWebExchange.getAttributes()`的 ServerWebExchangeUtils.URI_TEMPLATE_VARIABLES_ATTRIBUTE中，以Map形式存储
+#            - Host={sub}.myhost.org
+#            # 匹配GET方法
+#            - Method=GET
+#            # 路径匹配，与Host一样支持模版变量，存在URI_TEMPLATE_VARIABLES_ATTRIBUTE中。
+#            - Path=/foo/{segment},/bar/{segment}
+#            # 匹配存在baz查询参数
+#            - Query=baz
+#            # 匹配存在foo且符合`ba.`正则
+#            - Query=foo, ba.
+#            # 匹配远程地址
+#            - RemoteAddr=192.168.1.1/24
           order: 0
           predicates:
-            - Path=/foo/**
+            - Path=/test/**
           filters:
             - StripPrefix=1
+            - name: Hystrix
+              args:
+                name: default
+                fallbackUri: forward:/defaultfallback #熔断后访问路径
+#            - name: Retry
+#                args:
+#                  retries: 3
+#                  statuses: BAD_GATEWAY
+# 重试机制不建议适用,线上环境如果服务节点很多,重试的话可能会加快雪崩的速度
+        filters:
+          - name: RequestRateLimiter
+            args:
+              key-resolver: '#{@hostAddrKeyResolver}'
+              redis-rate-limiter.replenishRate: 10
+              redis-rate-limiter.burstCapacity: 20
+#  filter 名称必须是 RequestRateLimiter
+#  redis-rate-limiter.replenishRate：允许用户每秒处理多少个请求
+#  redis-rate-limiter.burstCapacity：令牌桶的容量，允许在一秒钟内完成的最大请求数
+#  key-resolver：使用 SpEL 按名称引用 bean
+#  这里只适用学习,线上环境比较复杂,要进行多维度的限流,所以需要重写限流功能,达到自定义的限流方式
 
-#  上面给出了一个根据请求路径来匹配目标uri的例子，如果请求的路径为/foo/bar，则目标uri为 http://localhost:8000/bar。
-#  如果上面例子中没有加一个StripPrefix=1过滤器，则目标uri 为http://localhost:8000/foo/bar，
-#  StripPrefix过滤器是去掉一个路径。
+# hystrix 信号量隔离，5秒后自动超时,但是有些接口本身就是需要很长时间的 所以这里就不使用了,需要自定义重写熔断功能
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          strategy: SEMAPHORE
+          thread:
+            timeoutInMilliseconds: 5000 #熔断超时时间
+
 
 eureka:
   client:
