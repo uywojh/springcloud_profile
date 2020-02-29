@@ -6,6 +6,9 @@ spring:
     database: 6
   cloud:
     gateway:
+      discovery:
+        locator:
+          enabled: true
       routes:
         - id: path_route
           uri: lb://boot-hello-service
