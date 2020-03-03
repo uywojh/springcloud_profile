@@ -9,7 +9,6 @@ spring:
     port: 6379
     password: 123456
     database: 6
-  profiles: gateway-server1
   cloud:
     gateway:
       routes:
