@@ -1,3 +1,6 @@
+server:
+  port: 8961
+
 spring:
   redis:
     host: 172.16.246.128
