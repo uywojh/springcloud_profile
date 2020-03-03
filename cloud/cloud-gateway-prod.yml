@@ -1,9 +1,4 @@
-server:
-  port: 8961
-
 spring:
-  application:
-    name: cloud-gateway
   redis:
     host: 172.16.246.128
     port: 6379
