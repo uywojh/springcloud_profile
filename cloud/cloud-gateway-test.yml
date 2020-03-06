@@ -1,5 +1,5 @@
 spring:
-  profiles: gateway-prod
+  profiles: gateway-test
   redis:
     host: 172.16.246.128
     port: 6379
@@ -12,7 +12,7 @@ spring:
           uri: lb://boot-hello-service
           order: 0
           predicates:
-            - Path=/prod/**
+            - Path=/test/**
           filters:
             - StripPrefix=1
             # 路由降级配置
@@ -32,3 +32,12 @@ hystrix:
         isolation:
           thread:
             timeoutInMilliseconds: 3000 #熔断超时时间
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  endpoint:
+    health:
+      show-details: always
